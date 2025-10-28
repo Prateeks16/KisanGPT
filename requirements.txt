@@ -1,8 +1,2 @@
-fastapi
-pydantic
-uvicorn[standard]
-qdrant-client
-sentence-transformers
-google-generativeai
-numpy<2
 streamlit
+requests
