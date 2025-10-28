@@ -1,20 +1,21 @@
-# Use lightweight Python image
+# Use a lightweight Python base image
 FROM python:3.10-slim
 
+# Prevent Python from buffering stdout/stderr (useful for logs)
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
 WORKDIR /app
-COPY . .
 
-# Speed up pip installs + handle timeouts
-ENV PIP_NO_CACHE_DIR=1 \
-    PIP_DEFAULT_TIMEOUT=200 \
-    PIP_RETRIES=10
+# Copy everything into the container
+COPY . /app
 
-# Install lightweight PyTorch CPU wheel (no CUDA)
-RUN pip install torch==2.2.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Expose Hugging Face Space default port
+# Expose port 7860 for Streamlit app
 EXPOSE 7860
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
-
+# Command to run the Streamlit frontend app
+CMD ["streamlit", "run", "src/app.py", "--server.port=7860", "--server.address=0.0.0.0"]
